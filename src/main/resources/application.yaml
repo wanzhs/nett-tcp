@@ -1,0 +1,33 @@
+server:
+  port: 8022
+spring:
+  profiles:
+    active: dev
+  redis:
+    host: ${redis.url}
+    port: 6379
+    password: ${redis.password}
+    database: ${redis.database}
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 500
+        min-idle: 0
+  rabbitmq:
+    addresses: ${rabbitmq.host}
+    port: ${rabbitmq.port}
+    username: ${rabbitmq.username}
+    password: ${rabbitmq.password}
+    publisher-confirms: ${rabbitmq.publisher-confirms}
+    publisher-returns: ${rabbitmq.publisher-returns}
+    listener:
+      simple:
+        acknowledge-mode: auto
+        prefetch: 10
+        concurrency: 10
+
+
+
+netty:
+  port: ${tcp.port}

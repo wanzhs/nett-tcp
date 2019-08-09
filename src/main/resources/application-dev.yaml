@@ -1,0 +1,17 @@
+redis:
+  url: 192.168.2.221
+  password:
+  database: 5
+
+rabbitmq:
+  host: 192.168.2.221
+  port: 5672
+  username: guest
+  password: guest
+  publisher-confirms: true
+  publisher-returns: true
+  virtual-host-tcp: /wanzhs/tcp
+
+
+tcp:
+  port: 9001
