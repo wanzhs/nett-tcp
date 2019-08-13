@@ -1,6 +1,7 @@
 package com.example.tcp.demo.handler;
 
 import com.example.tcp.demo.channel.ChannelAttr;
+import com.example.tcp.demo.channel.CtrlAddressChannel;
 import com.example.tcp.demo.channel.MAttributeKey;
 import com.example.tcp.demo.channel.MDirectUtil;
 import com.example.tcp.demo.frame.MDirect;
@@ -58,6 +59,7 @@ public class DirectHandler extends SimpleChannelInboundHandler<ByteBuf> {
         byte[] payload = new byte[len];
         in.readBytes(payload);
         ChannelAttr.getInstatnce().setAttr(ctx.channel(), MAttributeKey._CTRLADDR, ctrlAddress); //将通道的属性设置为集控器地址
+        CtrlAddressChannel.getInstance().add(new String(ctrlAddress), ctx.channel());
         mDirect.setCtrlAddress(ctrlAddress).setPayload(payload);
         messageDispatcher.dispatch(ctx, mDirect);
     }
@@ -93,11 +95,9 @@ public class DirectHandler extends SimpleChannelInboundHandler<ByteBuf> {
     }
 
     /**
-     * @author:luqi
-     * @description: 发生了错误了
-     * @date:2018/11/6_10:33
-     * @param:
-     * @return:
+     * @author:wanzhongsu
+     * @description: 发生错误了
+     * @date:2019/8/12 11:08
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {

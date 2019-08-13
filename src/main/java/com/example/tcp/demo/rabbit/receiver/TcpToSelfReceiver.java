@@ -51,6 +51,7 @@ public class TcpToSelfReceiver {
      * @date:2019/8/9 10:34
      */
     private void level1_handle(Object content) {
+        log.info("类型1待处理");
         tcpReceiverService.handleMqMessage(content);
     }
 

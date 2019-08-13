@@ -62,9 +62,9 @@ public class DemoNettyBoot implements CommandLineRunner {
             e.printStackTrace();
         } finally {
             if (future != null && future.isSuccess()) {
-                log.info("ok");
+                log.info("netty 启动 ok");
             } else {
-                log.info("error");
+                log.info("netty 启动 error");
             }
         }
     }
