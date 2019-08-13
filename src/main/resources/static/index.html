@@ -6,11 +6,20 @@
 		<title></title>
 	</head>
 	<body>
-		<div>发送消息：</div>
-		<input type="text" id="msgContent" />
-		<input type="button" value="点我发送" onclick="CHAT.chat()" />
-		<div>接收消息：</div>
-		<div id="receiveMsg" style="background-color: gainsboro;"></div>
+		<div>
+			<h3>客户端</h3>
+			<div>客户端id：</div>
+			<input type="text" id="msgContent" />
+			<input type="button" value="点我发送" onclick="CHAT.chat()" />
+			<div>接收消息：</div>
+			<div id="receiveMsg" style="background-color: gainsboro;"></div>
+		</div>
+		<div>
+			<h3>服务端</h3>
+			<div>客户端id：</div>
+			<input type="text" id="msgContent_server" />
+			<input type="button" value="点我发送" onclick="changeText()" />
+		</div>
 		<script>
 			window.CHAT={
 				socket:null,
@@ -45,6 +54,33 @@
 				}
 			}
 			CHAT.init();
+			
+			
+			var xmlHttp=null;
+			function changeText() { 
+				var msg=document.getElementById("msgContent_server");
+				//alert(msg.value)
+				if(window.XMLHttpRequest){
+					xmlHttp=new XMLHttpRequest();
+				}else if(window.ActiveXObject){
+					xmlHttp=new ActiveXObject("Microsoft.XMLHTTP");
+				}
+				xmlHttp.onreadystatechange = callBack
+				if(!msg.value){
+						alert("客户端id不能为空");  
+				}
+				xmlHttp.open("get","http://localhost:8022/test/send/"+msg.value,true)
+				xmlHttp.send(null);
+			}
+			
+			function callBack(){
+				if(xmlHttp.readyState==4){  
+					if(xmlHttp.status==200){  
+					//do something with xmlHttp.responseText;  
+					  alert(xmlHttp.responseText);  
+					}     
+				}  
+			}
 		</script>
 	</body>
 </html>

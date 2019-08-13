@@ -11,6 +11,7 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import org.springframework.util.ObjectUtils;
 
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
@@ -71,6 +72,10 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         // 当触发handlerRemoved,ChannelGroup会自动移除对应的客户端channel
         System.out.println("handler......移除");
         clients.remove(ctx.channel());
+        String ctrlAddress = ChannelAttr.getInstatnce().getAttr(ctx.channel(), MAttributeKey._CLIENTId, null);
+        if (!ObjectUtils.isEmpty(ctrlAddress)) {
+            CtrlAddressChannel.getInstance().remove(ctrlAddress);
+        }
         System.out.println("客户端断开，channel对应的长id为："
                 + ctx.channel().id().asLongText());
         System.out.println("客户端断开，channel对应的短id为："
@@ -79,7 +84,6 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
 
 
     //以下为验证过程添加，可以删除
-
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
         // TODO Auto-generated method stub
