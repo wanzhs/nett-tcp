@@ -12,5 +12,5 @@ public class MAttributeKey {
      * 集控器地址 16位地址
      */
     public final static AttributeKey<byte[]> _CTRLADDR = AttributeKey.valueOf("CTRLADDR");
-
+    public final static AttributeKey<String> _CLIENTId = AttributeKey.valueOf("CLIENTId");
 }

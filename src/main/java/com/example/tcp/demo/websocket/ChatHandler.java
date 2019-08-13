@@ -12,7 +12,8 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
-import java.time.LocalDateTime;
+import java.util.Enumeration;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -33,13 +34,25 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         String content = msg.text();
         String ctrlAddress = jsonParser.parse(content).getAsJsonObject().get("id").getAsString();
         content = jsonParser.parse(content).getAsJsonObject().get("value").getAsString();
-        System.out.println("接收到的数据： " + content);
         for (Channel channel : clients) {
-            channel.writeAndFlush(new TextWebSocketFrame("[服务器接收到消息时间: ]" +
-                    LocalDateTime.now() + ", 消息为：" + content));
+            channel.writeAndFlush(new TextWebSocketFrame("客戶端：" + ctrlAddress + "连接成功"));
         }
-        ChannelAttr.getInstatnce().setAttr(ctx.channel(), MAttributeKey._CTRLADDR, ctrlAddress.getBytes("utf-8")); //将通道的属性设置为集控器地址
+        ChannelAttr.getInstatnce().setAttr(ctx.channel(), MAttributeKey._CLIENTId, ctrlAddress); //将通道的属性设置为集控器地址
         CtrlAddressChannel.getInstance().add(ctrlAddress, ctx.channel());
+        //删除同一通道的其他连接地址
+        purgeChannel(ctrlAddress, ctx.channel());
+    }
+
+    private void purgeChannel(String ctrlAddress, Channel channel) {
+        ConcurrentHashMap<String, Channel> map = CtrlAddressChannel.getInstance().getMap();
+        Enumeration<String> keys = map.keys();
+        while (keys.hasMoreElements()) {
+            String key = keys.nextElement();
+            Channel value = map.get(key);
+            if (!ctrlAddress.equals(key) && value.equals(channel)) {
+                map.remove(key);
+            }
+        }
     }
 
     /**
@@ -49,6 +62,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         clients.add(ctx.channel());
+        String ctrlAddress = ChannelAttr.getInstatnce().getAttr(ctx.channel(), MAttributeKey._CLIENTId, null);
         System.out.println("handler......添加");
     }
 
