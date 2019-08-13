@@ -1,7 +1,6 @@
 package com.example.tcp.demo;
 
-import com.example.tcp.demo.frame.MDirectEncoder;
-import com.example.tcp.demo.frame.handler.DirectHandler;
+import com.example.tcp.demo.websocket.WSServerInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -11,6 +10,7 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
@@ -20,8 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-//public class DemoNettyBoot implements CommandLineRunner {
-public class DemoNettyBoot {
+public class DemoNettyBoot1 implements CommandLineRunner {
     @Value("${netty.port}")
     private int NETTY_PORT;
     private final EventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -29,10 +28,7 @@ public class DemoNettyBoot {
     private Channel channel;
 
     @Resource
-    MDirectEncoder mDirectEncoder;
-
-    @Resource
-    DirectHandler directHandler;
+    WSServerInitializer serverInitializer;
 
     private void start() {
         ServerBootstrap bootstrap = new ServerBootstrap();
@@ -41,19 +37,7 @@ public class DemoNettyBoot {
             bootstrap.group(bossGroup, workerGroup);
             bootstrap.channel(NioServerSocketChannel.class);
             bootstrap.localAddress(new InetSocketAddress(NETTY_PORT));
-            bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
-                @Override
-                protected void initChannel(SocketChannel socketChannel) throws Exception {
-                    ChannelPipeline pipeline = socketChannel.pipeline();
-                    pipeline.addLast(new IdleStateHandler(60, 0, 0, TimeUnit.SECONDS));
-                    pipeline.addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE,
-                            4, 4, 24, 0));
-                    //Protobuff 处理器
-                    pipeline.addLast(directHandler);
-                    //定义自己的消息处理器，接收消息并处理
-                    pipeline.addLast(mDirectEncoder);
-                }
-            }).option(ChannelOption.SO_BACKLOG, 1024)
+            bootstrap.childHandler(serverInitializer).option(ChannelOption.SO_BACKLOG, 1024)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             future = bootstrap.bind().syncUninterruptibly();// 配置完成，开始绑定server，通过调用sync同步方法阻塞直到绑定成功
             channel = future.channel();
@@ -69,7 +53,7 @@ public class DemoNettyBoot {
         }
     }
 
-//    @Override
+    @Override
     public void run(String... args) throws Exception {
         start();
     }

@@ -10,6 +10,7 @@ import com.example.tcp.demo.rabbit.domain.RabbitMessage;
 import com.example.tcp.demo.redis.MRedisUtil;
 import com.example.tcp.demo.redis.RedisConstant;
 import io.netty.channel.Channel;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -31,7 +32,7 @@ public class ClientServiceImpl implements IClientService {
         String rs = "";
         Channel channel = CtrlAddressChannel.getInstance().get(ctrlAddress);
         if (!ObjectUtils.isEmpty(channel)) {
-            channel.writeAndFlush("hello ok!");
+            channel.writeAndFlush(new TextWebSocketFrame("服务端发送消息成功"));
             rs = "发送成功";
             sendSuccessCallback(ctrlAddress);
         } else {
@@ -53,11 +54,11 @@ public class ClientServiceImpl implements IClientService {
         } else {
             value = value + 1;
         }
-        Integer maxTimes = 5;
+        Integer maxTimes = 20;
         //到达极限次数保存记录
         if (value.equals(maxTimes)) {
             mRedisUtil.remove(RedisConstant.TCP_TEST + ctrlAddress);
-            log.info("客户端：" + ctrlAddress + "已经尝试了" + maxTimes  + "次，最终失败");
+            log.info("客户端：" + ctrlAddress + "已经尝试了" + maxTimes + "次，最终失败");
             return;
         }
         log.info("客户端：" + ctrlAddress + "已经尝试了" + value + "次");
